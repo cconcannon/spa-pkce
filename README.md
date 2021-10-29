@@ -1,4 +1,14 @@
-> This is a markdown file showing the code snippets to include in the blogpost for the PKCE grant in the browser.
+# PKCE in Plain ol' JavaScript
+
+forked (and updated) from https://github.com/auth0/spa-pkce
+
+## Get Started
+
+1. `git clone https://github.com/cconcannon/spa-pkce.git && cd ./spa-pkce && npm install`
+2. `cp public/_variables.js public/variables.js`
+3. In the `public/variables.js` file, update the `CLIENT_ID`, `AUTH_DOMAIN`, and (optional) `API_AUDIENCE`
+  - the `AUTH_DOMAIN` is used to fetch `${AUTH_DOMAIN}/.well-known/openid-configuration`
+4. `npm start`
 
 ## Start the login with a redirection
 
@@ -10,7 +20,7 @@ document.getElementById('login').addEventListener('click', (e) => {
 
   const config = await getConfig();
   const state = randomString(32);
-  const codeVerifier = randomString(32);
+  const codeVerifier = randomString(48);
   const codeChallenge = await sha256(codeVerifier).then(bufferToBase64UrlEncoded);
 
   // we need to store the state to validate the callback
@@ -23,7 +33,7 @@ document.getElementById('login').addEventListener('click', (e) => {
   authorizationEndpointUrl.search = new URLSearchParams({
     audience: API_AUDIENCE,
     redirect_uri: REDIRECT_URI,
-    client_id: AUTH0_CLIENT_ID,
+    client_id: CLIENT_ID,
     response_type: 'code',
     scope: 'openid profile email read:appointments',
     code_challenge: codeChallenge,
@@ -60,7 +70,7 @@ async function handleCallback() {
     method: 'POST',
     body: new URLSearchParams({
       audience: API_AUDIENCE,
-      client_id: AUTH0_CLIENT_ID,
+      client_id: CLIENT_ID,
       redirect_uri: REDIRECT_URI,
       grant_type: 'authorization_code',
       code_verifier,
@@ -101,7 +111,7 @@ refreshBtn.addEventListener('click', async function(event) {
   authorizationEndpointUrl.search = new URLSearchParams({
     audience: API_AUDIENCE,
     redirect_uri: REDIRECT_URI,
-    client_id: AUTH0_CLIENT_ID,
+    client_id: CLIENT_ID,
     response_type: 'code',
     response_mode: 'web_message',
     prompt: 'none',
@@ -150,7 +160,7 @@ refreshBtn.addEventListener('click', async function(event) {
     method: 'POST',
     body: new URLSearchParams({
       audience: API_AUDIENCE,
-      client_id: AUTH0_CLIENT_ID,
+      client_id: CLIENT_ID,
       redirect_uri: REDIRECT_URI,
       grant_type: 'authorization_code',
       code_verifier: codeVerifier,
