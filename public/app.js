@@ -30,7 +30,7 @@ loginBtn.addEventListener('click', async function(event) {
   window.location.assign(authorizationEndpointUrl);
 });
 
-(async function handleCallback() {
+window.onload = async function handleCallback() {
   const search = new URLSearchParams(window.location.search);
   if(!search.has('code')) { return; }
   const code = search.get('code');
@@ -71,7 +71,7 @@ loginBtn.addEventListener('click', async function(event) {
   const url = new URL(window.location);
   url.search = '';
   window.history.pushState('', document.title, url);
-})();
+};
 
 
 refreshBtn.addEventListener('click', async function(event) {
@@ -79,7 +79,10 @@ refreshBtn.addEventListener('click', async function(event) {
   const config = await getConfig();
 
   const state = randomString(32);
-  const codeVerifier = randomString(32);
+  const codeVerifier = randomString(48);
+
+  sessionStorage.setItem(`login-code-verifier-${state}`, codeVerifier);
+
   const codeChallenge = await sha256(codeVerifier).then(bufferToBase64UrlEncoded);
   const authorizationEndpointUrl = new URL(config.authorization_endpoint);
 
@@ -89,7 +92,6 @@ refreshBtn.addEventListener('click', async function(event) {
     redirect_uri: REDIRECT_URI,
     client_id: CLIENT_ID,
     response_type: 'code',
-    response_mode: 'web_message',
     prompt: 'none',
     scope: 'openid profile',
     code_challenge: codeChallenge,
@@ -121,6 +123,8 @@ refreshBtn.addEventListener('click', async function(event) {
         return reject(response)
       }
       if (response.state !== state) {
+        console.log(`state: ${state}`);
+        console.log(`response state: ${response.state}`)
         return reject(new Error("State does not match."));
       }
       resolve(response);
