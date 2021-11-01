@@ -73,7 +73,6 @@ window.onload = async function handleCallback() {
   window.history.pushState('', document.title, url);
 };
 
-
 refreshBtn.addEventListener('click', async function(event) {
   event.preventDefault();
   const config = await getConfig();
